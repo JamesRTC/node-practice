@@ -6,18 +6,18 @@ const getNotes = () => "here is your text";
 const addNote = (title, body) => {
   const notes = loadNotes();
 
-  const duplicateNotes = notes.filter((notes) => notes.title === title);
+  const duplicateNote = notes.find((note) => note.title === title);
 
-  if (duplicateNotes.length === 0) {
+  if (!duplicateNote) {
     notes.push({
       title: title,
       body: body,
     });
 
     saveNotes(notes);
-    console.log(chalk.green("New note added"));
+    console.log(chalk.green.inverse("New note added"));
   } else {
-    console.log(chalk.red("Note title taken"));
+    console.log(chalk.red.inverse("Note title taken"));
   }
 };
 
@@ -36,4 +36,38 @@ const loadNotes = function () {
   }
 };
 
-module.exports = { getNotes, addNote };
+const removeNote = (title) => {
+  const notes = loadNotes();
+
+  const filteredNotes = notes.filter((note) => note.title !== title);
+
+  if (filteredNotes.length < notes.length) {
+    fs.writeFileSync("notes.json", JSON.stringify(filteredNotes));
+    console.log(chalk.green.inverse(`${title} has been deleted`));
+  } else {
+    console.log(chalk.red.inverse("No such title found"));
+  }
+};
+
+const listNotes = () => {
+  const notes = loadNotes();
+  if (notes.length !== 0) {
+    console.log(chalk.green.inverse("Your notes: "));
+
+    notes.forEach((note) => console.log(note.title));
+  } else {
+    console.log(chalk.red("No notes available"));
+  }
+};
+
+const readNotes = (title) => {
+  const notes = loadNotes();
+  let note = notes.find((note) => note.title === title);
+
+  if (note) {
+    console.log(chalk.inverse(note.title) + ":" + note.body);
+  } else {
+    console.log(chalk.red.inverse("No note found"));
+  }
+};
+module.exports = { getNotes, addNote, removeNote, listNotes, readNotes };
